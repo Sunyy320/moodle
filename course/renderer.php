@@ -1367,6 +1367,7 @@ class core_course_renderer extends plugin_renderer_base {
     protected function coursecat_subcategories(coursecat_helper $chelper, $coursecat, $depth) {
         global $CFG;
         $subcategories = array();
+        // 这一步从categories中获取可用的类型
         if (!$chelper->get_categories_display_option('nodisplay')) {
             $subcategories = $coursecat->get_children($chelper->get_categories_display_options());
         }
@@ -1412,7 +1413,7 @@ class core_course_renderer extends plugin_renderer_base {
         if (!empty($pagingbar)) {
             $content .= $pagingbar;
         }
-
+        
         foreach ($subcategories as $subcategory) {
             $content .= $this->coursecat_category($chelper, $subcategory, $depth + 1);
         }
@@ -1455,7 +1456,6 @@ class core_course_renderer extends plugin_renderer_base {
         $content = '';
         // Subcategories
         $content .= $this->coursecat_subcategories($chelper, $coursecat, $depth);
-
         // AUTO show courses: Courses will be shown expanded if this is not nested category,
         // and number of courses no bigger than $CFG->courseswithsummarieslimit.
         $showcoursesauto = $chelper->get_show_courses() == self::COURSECAT_SHOW_COURSES_AUTO;
@@ -1486,6 +1486,8 @@ class core_course_renderer extends plugin_renderer_base {
 
         return $content;
     }
+
+    
 
     /**
      * Returns HTML to display a course category as a part of a tree
@@ -1573,7 +1575,7 @@ class core_course_renderer extends plugin_renderer_base {
         if (empty($categorycontent)) {
             return '';
         }
-
+        
         // Start content generation
         $content = '';
         $attributes = $chelper->get_and_erase_attributes('course_category_tree clearfix');
@@ -1583,7 +1585,6 @@ class core_course_renderer extends plugin_renderer_base {
             $classes = array(
                 'collapseexpand',
             );
-
             // Check if the category content contains subcategories with children's content loaded.
             if ($this->categoryexpandedonload) {
                 $classes[] = 'collapse-all';
@@ -2097,7 +2098,70 @@ class core_course_renderer extends plugin_renderer_base {
                         array('browse' => 'courses', 'page' => 1))
             ))->
             set_attributes(array('class' => 'frontpage-category-combo'));
+            
         return $this->coursecat_tree($chelper, coursecat::get(0));
+    }
+
+    // 自定义输出格式
+    public function frontpage_combo_list_self(){
+        global $CFG;
+        require_once($CFG->libdir. '/coursecatlib.php');
+        $coursecat = coursecat::get(0);
+        $fenlei= $coursecat->get_children();
+        $res = array();
+        foreach($fenlei as $item){
+            $courseRes = $coursecat->get_courses_self($item->id);
+            $child = array();
+            foreach($courseRes as $c){
+                $child[] = array(
+                    'id' => $c->id,
+                    'fullname' => $c->fullname,
+                    'summary' => $c->summary,
+                    'startdate' => $c->startdate
+                );
+            }
+            $res[] = array(
+                'id' => $item->id,
+                'name' => $item->name,
+                'description' => $item->description,
+                'descriptionformat' => $item->descriptionformat,
+                'depth' => $item->depth,
+                'path' => $item->path,
+                'child' => $child
+            );
+        }
+        
+        $content = '<div>';
+        // 开始构造样式
+        foreach($res as $r){
+            $content .= '<div style="width:100%;">';
+
+            // 包含小的标题div
+            $content .= '<div style="font-size:20px;font-weight:400;width:100%;float:left;margin-top:20px;">';
+            $url = new moodle_url('/course/index.php', array('categoryid' => $r["id"]));
+            $content .= '<a href="'.$url.'"><div style="float:left;">'.$r["name"].'</div><div style="float:right;font-size:10px;">'.更多.'</div></a>';
+            $content .= "</div>";
+
+            // 内容div
+            $content .= '<div style="width:100%">';
+            foreach($r['child'] as $item){
+                $url = new moodle_url('/course/view.php', array('id' => $item['id']));
+                $content .= '<a href="'.$url.'">';
+                $content .= '<div style="margin-left: 10px;padding: 10px;float: left;width:30%;height:300px;border: 1px solid silver;">';
+                $content .= '<img width="100%" height="250" src="https://edu-image.nosdn.127.net/919DA85BCA50BCAD25BA82ED8EA5857F.jpg?imageView&thumbnail=426y240&quality=100"></img>';
+                $content .= '<div style="margin-top:10px;font-size:10px;color: rgb(153, 153, 153);"><div style="float:left;">'.$item["fullname"].'</div>';
+                $content .= '<div style="float:right;">'.date('Y-m-d', $item['startdate']).'</div></div>';
+                $content .= '</div>';
+                $content .= '</a>';
+            }
+            $content .= "</div>";
+
+            $content .= "</div>";
+        }
+
+        $content .= "</div>";
+        return $content;
+        // 
     }
 
     /**

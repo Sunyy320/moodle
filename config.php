@@ -6,7 +6,7 @@ $CFG = new stdClass();
 
 $CFG->dbtype    = 'mysqli';
 $CFG->dblibrary = 'native';
-$CFG->dbhost    = 'localhost';
+$CFG->dbhost    = '47.98.109.213';
 $CFG->dbname    = 'moodle';
 $CFG->dbuser    = 'root';
 $CFG->dbpass    = 'Sunyy320';
@@ -18,8 +18,8 @@ $CFG->dboptions = array (
   'dbcollation' => 'utf8mb4_unicode_ci',
 );
 
-$CFG->wwwroot   = 'http://47.98.109.213/moodle';
-$CFG->dataroot  = '/var/moodledata';
+$CFG->wwwroot   = 'http://hnust.moodle.com';
+$CFG->dataroot  = '/Users/yuanyuansun/var/moodledata';
 $CFG->admin     = 'admin';
 
 $CFG->directorypermissions = 0777;

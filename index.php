@@ -108,6 +108,7 @@ if (file_exists($CFG->dirroot.'/local/hub/lib.php') and get_config('local_hub', 
 $PAGE->set_pagetype('site-index');
 $PAGE->set_docs_path('');
 $editing = $PAGE->user_is_editing();
+// 这里输出header
 $PAGE->set_title($SITE->fullname);
 $PAGE->set_heading($SITE->fullname);
 $courserenderer = $PAGE->get_renderer('core', 'course');
@@ -291,7 +292,7 @@ foreach (explode(',', $frontpagelayout) as $v) {
 
             echo $OUTPUT->heading(get_string('categories'));
             echo $courserenderer->frontpage_categories_list();
-
+        
             // End frontpage category names div container.
             echo html_writer::end_tag('div');
 
@@ -306,9 +307,15 @@ foreach (explode(',', $frontpagelayout) as $v) {
             // Wrap frontpage category combo in div container.
             echo html_writer::start_tag('div', array('id' => 'frontpage-category-combo'));
 
-            echo $OUTPUT->heading(get_string('courses'));
-            echo $courserenderer->frontpage_combo_list();
+            // 输出标题名称
+            // echo $OUTPUT->heading(get_string('courses'));
+            // echo $OUTPUT->heading('课程推荐');
+            // 输出课程列表
+            //echo $courserenderer->frontpage_combo_list();
 
+            // 自定义输出格式
+            echo $courserenderer->frontpage_combo_list_self();
+            
             // End frontpage category combo div container.
             echo html_writer::end_tag('div');
 
@@ -316,6 +323,7 @@ foreach (explode(',', $frontpagelayout) as $v) {
         break;
 
         case FRONTPAGECOURSESEARCH:
+            // 输出课程搜索
             echo $OUTPUT->box($courserenderer->course_search_form('', 'short'), 'mdl-align');
         break;
 
