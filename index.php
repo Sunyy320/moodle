@@ -91,7 +91,7 @@ if (get_home_page() != HOMEPAGE_SITE) {
 }
 
 // Trigger event.
-course_view(context_course::instance(SITEID));
+// course_view(context_course::instance(SITEID));
 
 // If the hub plugin is installed then we let it take over the homepage here.
 if (file_exists($CFG->dirroot.'/local/hub/lib.php') and get_config('local_hub', 'hubenabled')) {
@@ -107,8 +107,8 @@ if (file_exists($CFG->dirroot.'/local/hub/lib.php') and get_config('local_hub', 
 
 $PAGE->set_pagetype('site-index');
 $PAGE->set_docs_path('');
-$editing = $PAGE->user_is_editing();
-// 这里输出header
+// $editing = $PAGE->user_is_editing();
+// // 这里输出header
 $PAGE->set_title($SITE->fullname);
 $PAGE->set_heading($SITE->fullname);
 $courserenderer = $PAGE->get_renderer('core', 'course');
@@ -122,66 +122,67 @@ $modnamesplural = get_module_types_names(true);
 $modnamesused = $modinfo->get_used_module_names();
 $mods = $modinfo->get_cms();
 
-if (!empty($CFG->customfrontpageinclude)) {
-    include($CFG->customfrontpageinclude);
+// if (!empty($CFG->customfrontpageinclude)) {
+//     include($CFG->customfrontpageinclude);
 
-} else if ($siteformatoptions['numsections'] > 0) {
-    if ($editing) {
-        // Make sure section with number 1 exists.
-        course_create_sections_if_missing($SITE, 1);
-        // Re-request modinfo in case section was created.
-        $modinfo = get_fast_modinfo($SITE);
-    }
-    $section = $modinfo->get_section_info(1);
-    if (($section && (!empty($modinfo->sections[1]) or !empty($section->summary))) or $editing) {
-        echo $OUTPUT->box_start('generalbox sitetopic');
+// } else if ($siteformatoptions['numsections'] > 0) {
+    // if ($editing) {
+    //     // Make sure section with number 1 exists.
+    //     course_create_sections_if_missing($SITE, 1);
+    //     // Re-request modinfo in case section was created.
+    //     $modinfo = get_fast_modinfo($SITE);
+    // }
+    // $section = $modinfo->get_section_info(1);
+    // if (($section && (!empty($modinfo->sections[1]) or !empty($section->summary))) or $editing) {
+    //     echo $OUTPUT->box_start('generalbox sitetopic');
 
-        // If currently moving a file then show the current clipboard.
-        if (ismoving($SITE->id)) {
-            $stractivityclipboard = strip_tags(get_string('activityclipboard', '', $USER->activitycopyname));
-            echo '<p><font size="2">';
-            echo "$stractivityclipboard&nbsp;&nbsp;(<a href=\"course/mod.php?cancelcopy=true&amp;sesskey=".sesskey()."\">";
-            echo get_string('cancel') . '</a>)';
-            echo '</font></p>';
-        }
+    //     // If currently moving a file then show the current clipboard.
+    //     if (ismoving($SITE->id)) {
+    //         $stractivityclipboard = strip_tags(get_string('activityclipboard', '', $USER->activitycopyname));
+    //         echo '<p><font size="2">';
+    //         echo "$stractivityclipboard&nbsp;&nbsp;(<a href=\"course/mod.php?cancelcopy=true&amp;sesskey=".sesskey()."\">";
+    //         echo get_string('cancel') . '</a>)';
+    //         echo '</font></p>';
+    //     }
 
-        $context = context_course::instance(SITEID);
+    //     $context = context_course::instance(SITEID);
 
-        // If the section name is set we show it.
-        if (trim($section->name) !== '') {
-            echo $OUTPUT->heading(
-                format_string($section->name, true, array('context' => $context)),
-                2,
-                'sectionname'
-            );
-        }
+    //     // If the section name is set we show it.
+    //     if (trim($section->name) !== '') {
+    //         echo $OUTPUT->heading(
+    //             format_string($section->name, true, array('context' => $context)),
+    //             2,
+    //             'sectionname'
+    //         );
+    //     }
 
-        $summarytext = file_rewrite_pluginfile_urls($section->summary,
-            'pluginfile.php',
-            $context->id,
-            'course',
-            'section',
-            $section->id);
-        $summaryformatoptions = new stdClass();
-        $summaryformatoptions->noclean = true;
-        $summaryformatoptions->overflowdiv = true;
+    //     $summarytext = file_rewrite_pluginfile_urls($section->summary,
+    //         'pluginfile.php',
+    //         $context->id,
+    //         'course',
+    //         'section',
+    //         $section->id);
+    //     $summaryformatoptions = new stdClass();
+    //     $summaryformatoptions->noclean = true;
+    //     $summaryformatoptions->overflowdiv = true;
 
-        echo format_text($summarytext, $section->summaryformat, $summaryformatoptions);
+    //     // 注释掉网页介绍
+    //     // echo format_text($summarytext, $section->summaryformat, $summaryformatoptions);
 
-        if ($editing && has_capability('moodle/course:update', $context)) {
-            $streditsummary = get_string('editsummary');
-            echo "<a title=\"$streditsummary\" " .
-                 " href=\"course/editsection.php?id=$section->id\">" . $OUTPUT->pix_icon('t/edit', $streditsummary) .
-                 "</a><br /><br />";
-        }
+    //     if ($editing && has_capability('moodle/course:update', $context)) {
+    //         $streditsummary = get_string('editsummary');
+    //         // echo "<a title=\"$streditsummary\" " .
+    //         //      " href=\"course/editsection.php?id=$section->id\">" . $OUTPUT->pix_icon('t/edit', $streditsummary) .
+    //         //      "</a><br /><br />";
+    //     }
 
-        $courserenderer = $PAGE->get_renderer('core', 'course');
-        echo $courserenderer->course_section_cm_list($SITE, $section);
+    //     $courserenderer = $PAGE->get_renderer('core', 'course');
+    //     echo $courserenderer->course_section_cm_list($SITE, $section);
 
-        echo $courserenderer->course_section_add_cm_control($SITE, $section->section);
-        echo $OUTPUT->box_end();
-    }
-}
+    //     echo $courserenderer->course_section_add_cm_control($SITE, $section->section);
+    //     echo $OUTPUT->box_end();
+    // }
+// }
 // Include course AJAX.
 include_course_ajax($SITE, $modnamesused);
 
@@ -324,7 +325,7 @@ foreach (explode(',', $frontpagelayout) as $v) {
 
         case FRONTPAGECOURSESEARCH:
             // 输出课程搜索
-            echo $OUTPUT->box($courserenderer->course_search_form('', 'short'), 'mdl-align');
+            // echo $OUTPUT->box($courserenderer->course_search_form('', 'short'), 'mdl-align');
         break;
 
     }

@@ -2117,7 +2117,8 @@ class core_course_renderer extends plugin_renderer_base {
                     'id' => $c->id,
                     'fullname' => $c->fullname,
                     'summary' => $c->summary,
-                    'startdate' => $c->startdate
+                    'startdate' => $c->startdate,
+                    'imgurl' => $c->imgurl
                 );
             }
             $res[] = array(
@@ -2130,25 +2131,24 @@ class core_course_renderer extends plugin_renderer_base {
                 'child' => $child
             );
         }
-        
-        $content = '<div>';
+        $content = '<div style="width:100%;float:left;">';
         // 开始构造样式
         foreach($res as $r){
             $content .= '<div style="width:100%;">';
 
             // 包含小的标题div
-            $content .= '<div style="font-size:20px;font-weight:400;width:100%;float:left;margin-top:20px;">';
+            $content .= '<div style="font-size:20px;font-weight:400;width:100%;float:left;margin-top:15px;">';
             $url = new moodle_url('/course/index.php', array('categoryid' => $r["id"]));
             $content .= '<a href="'.$url.'"><div style="float:left;">'.$r["name"].'</div><div style="float:right;font-size:10px;">'.更多.'</div></a>';
             $content .= "</div>";
 
             // 内容div
-            $content .= '<div style="width:100%">';
+            $content .= '<div style="width:100%;">';
             foreach($r['child'] as $item){
                 $url = new moodle_url('/course/view.php', array('id' => $item['id']));
                 $content .= '<a href="'.$url.'">';
-                $content .= '<div style="margin-left: 10px;padding: 10px;float: left;width:30%;height:300px;border: 1px solid silver;">';
-                $content .= '<img width="100%" height="250" src="https://edu-image.nosdn.127.net/919DA85BCA50BCAD25BA82ED8EA5857F.jpg?imageView&thumbnail=426y240&quality=100"></img>';
+                $content .= '<div style="margin-left: 10px;padding: 10px;float: left;width:24%;height:300px;border: 1px solid silver;">';
+                $content .= '<img width="100%" height="250" src="'.$item["imgurl"].'"></img>';
                 $content .= '<div style="margin-top:10px;font-size:10px;color: rgb(153, 153, 153);"><div style="float:left;">'.$item["fullname"].'</div>';
                 $content .= '<div style="float:right;">'.date('Y-m-d', $item['startdate']).'</div></div>';
                 $content .= '</div>';

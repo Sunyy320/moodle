@@ -1554,7 +1554,7 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
 
     public function get_courses_self($id){
         global $DB;
-        $res = $DB->get_records('course', array('category'=> $id), 'timecreated','*');
+        $res = $DB->get_records('course', array('category'=> $id), 'timecreated','*', 0, 4);
         return $res;
     } 
 
