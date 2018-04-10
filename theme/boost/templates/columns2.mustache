@@ -97,23 +97,63 @@
 </div>
 <footer id="page-footer" class="p-y-1 bg-inverse">
     <div class="container">
-        <div id="course-footer">{{{ output.course_footer }}}</div>
+        <div class="row">
+            <div id="course-footer" class="col-xs-6" style="font-size: 1.5em;">
+                <div class="row">
+                    <div class="col-xs-2">
+                      <img width="100%" src="http://img2.ph.126.net/k3Xzgm9V1pacSCIKLl8fOQ==/3046966622993113946.png">
+                    </div>
 
-        {{# output.page_doc_link }}
-            <p class="helplink">{{{ output.page_doc_link }}}</p>
-        {{/ output.page_doc_link }}
+                    <div class="col-xs-10">
+                        <div class="row">HNUST学习云平台</div>
+                        <div class="row" style="font-size: 0.5em;color: #999;">唯实惟新&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;至诚致志</div>
+                    </div>
+                </div>
+            </div>
 
-        {{{ output.login_info }}}
-        {{{ output.home_link }}}
-        <nav class="nav navbar-nav hidden-lg-up">
-            {{# output.custom_menu_flat }}
-                <ul class="list-unstyled p-t-1">
-                    {{> theme_boost/custom_menu_footer }}
-                </ul>
-            {{/ output.custom_menu_flat }}
-        </nav>
+
+            <div class="col-xs-3" style="color: #999;">
+                <div class="row">
+                    <div class="col-xs-6" style="font-size: 1.2em;">
+                        关于我们
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6" style="font-size: 0.5em;">联系我们</div>
+                    <div class="col-xs-6" style="font-size: 0.5em;">意见反馈</div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-6" style="font-size: 0.5em;">常见问题</div>
+                    <div class="col-xs-6" style="font-size: 0.5em;">关于我们</div>
+                </div>
+            </div>
+            <div class="col-xs-3" style="color: #999;">
+                <div class="row">
+                    <div class="col-xs-6" style="font-size: 1.2em;">
+                        友情链接
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12" style="font-size: 0.5em;">
+                        学生使用手册
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12" style="font-size: 0.5em;">
+                        教师使用手册
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12" style="font-size: 0.5em;">
+                        管理平台手册
+                    </div>
+                </div>
+            </div>
+        </div>
+        
         {{{ output.standard_footer_html }}}
         {{{ output.standard_end_of_body_html }}}
+
     </div>
 </footer>
 
