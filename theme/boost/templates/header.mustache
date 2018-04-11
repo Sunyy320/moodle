@@ -25,17 +25,25 @@
             <button aria-expanded="{{#navdraweropen}}true{{/navdraweropen}}{{^navdraweropen}}false{{/navdraweropen}}" aria-controls="nav-drawer" type="button" class="btn pull-xs-left m-r-1 btn-secondary" data-action="toggle-drawer" data-side="left" data-preference="drawer-open-nav">{{#pix}}i/menubars{{/pix}}<span class="sr-only">{{#str}}sidepanel, core{{/str}}</span></button>
         </div>
 
-        <a href="{{{ config.wwwroot }}}" class="navbar-brand {{# output.should_display_navbar_logo }}has-logo{{/ output.should_display_navbar_logo }}
+      <!--显示短名称的部分即HNSUT MOODlE class="navbar-brand"-->
+        <a href="{{{ config.wwwroot }}}" class="{{# output.should_display_navbar_logo }}has-logo{{/ output.should_display_navbar_logo }}
             {{^ output.should_display_navbar_logo }}
                 hidden-sm-down
             {{/ output.should_display_navbar_logo }}
-                ">
-            {{# output.should_display_navbar_logo }}
+                "
+                style="float: left;margin-right: 1rem;"
+                >
+            <!--{{ output.should_display_navbar_logo }}-->
                 <span class="logo hidden-xs-down">
-                    <img src="{{output.get_compact_logo_url}}" alt="{{sitename}}">
+                    <img src="https://picabstract-preview-ftn.weiyun.com:8443/ftn_pic_abs_v2/4bee27a6da55dcc3fedae44c06ba59ecadfc0c8616ca7a00be93aa900f308e69b6a5303333c2f0623296b551f4251cc4?pictype=scale&from=30013&version=3.3.3.3&uin=1062666905&fname=%E5%B1%8F%E5%B9%95%E5%BF%AB%E7%85%A7%202018-04-10%20%E4%B8%8B%E5%8D%887.50.24.png&size=750" alt="{{sitename}}">
                 </span>
-            {{/ output.should_display_navbar_logo }}
-            <span class="site-name hidden-sm-down">{{{ sitename }}}</span>
+            <!--{{ output.should_display_navbar_logo }}-->
+            
+             <!--<span class="site-name hidden-sm-down">{{{ sitename }}}</span>-->
+             <span class="hidden-xs-down" style="font-size:10px;">
+                HNUST
+                <span style="font-size:15px;">学习云平台</span>
+             </span>
         </a>
 
         <!-- user_menu -->
