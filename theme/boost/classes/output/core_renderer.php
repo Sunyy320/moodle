@@ -79,9 +79,13 @@ class core_renderer extends \core_renderer {
         $html .= html_writer::start_div('card-block');
         $html .= html_writer::div($this->context_header_settings_menu(), 'pull-xs-right context-header-settings-menu');
         $html .= html_writer::start_div('pull-xs-left');
-        $html .= $this->context_header();
+        // 输出fullname
+        //$html .= $this->context_header();
+        $html .= '<div style="font-size:20px;color: #00acdf;">湖南科技大学在线学习云平台</div>';
         $html .= html_writer::end_div();
+
         $pageheadingbutton = $this->page_heading_button();
+        // 输出首页/我的课程等导航信息以及加入管理课程的按钮
         if (empty($PAGE->layout_options['nonavbar'])) {
             $html .= html_writer::start_div('clearfix w-100 pull-xs-left', array('id' => 'page-navbar'));
             $html .= html_writer::tag('div', $this->navbar(), array('class' => 'breadcrumb-nav'));
