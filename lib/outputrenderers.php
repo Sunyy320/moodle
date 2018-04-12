@@ -4169,8 +4169,11 @@ EOD;
 
         // Headings.
         if (!isset($contextheader->heading)) {
-            $headings = $this->heading($this->page->heading, $contextheader->headinglevel);
+            // 首页输出
+            // $headings = $this->heading($this->page->heading, $contextheader->headinglevel);
+            $headings = '<div style="font-size:20px;color: #00acdf;">湖南科技大学在线学习云平台</div>';
         } else {
+            // 个人页面头部输出
             $headings = $this->heading($contextheader->heading, $contextheader->headinglevel);
         }
 
@@ -4201,7 +4204,7 @@ EOD;
             $html .= html_writer::end_div();
         }
         $html .= html_writer::end_div();
-
+         
         return $html;
     }
 

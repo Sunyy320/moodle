@@ -80,8 +80,7 @@ class core_renderer extends \core_renderer {
         $html .= html_writer::div($this->context_header_settings_menu(), 'pull-xs-right context-header-settings-menu');
         $html .= html_writer::start_div('pull-xs-left');
         // 输出fullname
-        //$html .= $this->context_header();
-        $html .= '<div style="font-size:20px;color: #00acdf;">湖南科技大学在线学习云平台</div>';
+        $html .= $this->context_header();
         $html .= html_writer::end_div();
 
         $pageheadingbutton = $this->page_heading_button();
