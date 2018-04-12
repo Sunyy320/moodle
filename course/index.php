@@ -63,7 +63,8 @@ if ($categoryid && !$category->visible && !has_capability('moodle/category:viewh
 }
 
 $PAGE->set_heading($site->fullname);
-$content = $courserenderer->course_category($categoryid);
+// $content = $courserenderer->course_category($categoryid);
+$content = $courserenderer->course_category_self($categoryid);
 
 echo $OUTPUT->header();
 echo $OUTPUT->skip_link_target();
