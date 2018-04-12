@@ -1863,12 +1863,11 @@ class core_course_renderer extends plugin_renderer_base {
                     'imgurl' => $c->imgurl
                 );
             }
+            $content = $this->course_category_print_box_self($child);
         } else{
-            // 当显示首页的列表            
+            // 当显示首页的列表，按照时间获取所有的课程
+            $content = $this->frontpage_combo_list_self();
         }
-        
-        // 开始拼接页面
-        $content = $this->course_category_print_box_self($child);
 
         return $content;
     }
