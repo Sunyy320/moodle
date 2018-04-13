@@ -1400,6 +1400,20 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         return $courses;
     }
 
+    // 自定义搜索函数
+    public static function search_courses_self($search, $options = array()){
+        global $DB;
+        $name = $search['search'];
+        if (empty($name)){
+            return array();
+        }
+
+        // 此处不再考虑sql注入的问题
+        $sql =  'select id,fullname,summary,startdate,enddate,imgurl from {course} where fullname like "%'.$name.'%" or summary like "%'.$name.'%" order by startdate desc';
+        $res = $DB->get_records_sql($sql);
+        return $res;
+    }
+
     /**
      * Returns number of courses in the search results
      *

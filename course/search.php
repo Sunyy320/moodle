@@ -91,7 +91,8 @@ if (empty($searchcriteria)) {
     } else {
         $searchform = $courserenderer->course_search_form($search, 'navbar');
     }
-    $PAGE->set_button($searchform);
+    // 去除头部栏的搜索框
+    // $PAGE->set_button($searchform);
 
     // Trigger event, courses searched.
     $eventparams = array('context' => $PAGE->context, 'other' => array('query' => $search));
@@ -102,5 +103,5 @@ if (empty($searchcriteria)) {
 $PAGE->set_heading($site->fullname);
 
 echo $OUTPUT->header();
-echo $courserenderer->search_courses($searchcriteria);
+echo $courserenderer->search_courses_self($searchcriteria);
 echo $OUTPUT->footer();

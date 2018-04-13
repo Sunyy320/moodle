@@ -1873,7 +1873,19 @@ class core_course_renderer extends plugin_renderer_base {
     }
 
     public function course_category_print_box_self($child){
-        $content = '<div style="width:100%;">';
+        $content = '';
+
+        // 时间的选择器
+        // $content .= '<div style="margin:1rem 3rem 0rem 3rem;">';
+        // $content .= '<div class="row" style="border:1px solid silver;">';
+        // $content .= '<div><ul style="float:left;margin-bottom:0rem;line-height:0.8rem;">';
+        // $content .= '<li style="color:#55b929;border-right: 1px solid #e6e6e6;padding:0.8rem;float:left;list-style:none;cursor:pointer;">全部</li>';
+        // $content .= '<li style="border-right: 1px solid #e6e6e6;padding:0.8rem;float:left;list-style:none;cursor:pointer;">正在进行</li>';
+        // $content .= '</ul></div>';
+        // $content .= '</div>';
+        // $content .= '</div>';
+
+        $content .= '<div style="width:100%;">';
         foreach($child as $item){
             $url = new moodle_url('/course/view.php', array('id' => $item['id']));
             $content .= '<a href="'.$url.'">';
@@ -2025,9 +2037,85 @@ class core_course_renderer extends plugin_renderer_base {
             if (!empty($searchcriteria['search'])) {
                 // print search form only if there was a search by search string, otherwise it is confusing
                 $content .= $this->box_start('generalbox mdl-align');
+                // 最下面搜索框的显示，最后需要调整到最上面显示
                 $content .= $this->course_search_form($searchcriteria['search']);
                 $content .= $this->box_end();
             }
+        } else {
+            // just print search form
+            $content .= $this->box_start('generalbox mdl-align');
+            $content .= $this->course_search_form();
+            $content .= html_writer::tag('div', get_string("searchhelp"), array('class' => 'searchhelp'));
+            $content .= $this->box_end();
+        }
+        return $content;
+    }
+
+    // 自定义搜索函数
+    public function search_courses_self($searchcriteria) {
+        global $CFG;
+        $content = '';
+        if (!empty($searchcriteria)) {
+            // 输出搜索框
+            if (!empty($searchcriteria['search'])) {
+                // print search form only if there was a search by search string, otherwise it is confusing
+                $content .= $this->box_start('generalbox mdl-align');
+                $content .= $this->course_search_form($searchcriteria['search']);
+                $content .= $this->box_end();
+            }
+
+            // print search results
+            require_once($CFG->libdir. '/coursecatlib.php');
+
+            $displayoptions = array('sort' => array('displayname' => 1));
+            // take the current page and number of results per page from query
+            $perpage = optional_param('perpage', 0, PARAM_RAW);
+            if ($perpage !== 'all') {
+                $displayoptions['limit'] = ((int)$perpage <= 0) ? $CFG->coursesperpage : (int)$perpage;
+                $page = optional_param('page', 0, PARAM_INT);
+                $displayoptions['offset'] = $displayoptions['limit'] * $page;
+            }
+            // options 'paginationurl' and 'paginationallowall' are only used in method coursecat_courses()
+            $displayoptions['paginationurl'] = new moodle_url('/course/search.php', $searchcriteria);
+            $displayoptions['paginationallowall'] = true; // allow adding link 'View all'
+
+            $class = 'course-search-result';
+            foreach ($searchcriteria as $key => $value) {
+                if (!empty($value)) {
+                    $class .= ' course-search-result-'. $key;
+                }
+            }
+            $chelper = new coursecat_helper();
+            $chelper->set_show_courses(self::COURSECAT_SHOW_COURSES_EXPANDED_WITH_CAT)->
+                    set_courses_display_options($displayoptions)->
+                    set_search_criteria($searchcriteria)->
+                    set_attributes(array('class' => $class));
+
+            $courses = coursecat::search_courses_self($searchcriteria, $chelper->get_courses_display_options());
+            // 搜索结果进行拼接
+            $child = array();
+            $count = 0;
+            foreach($courses as $c){
+                $child[] = array(
+                    'id' => $c->id,
+                    'fullname' => $c->fullname,
+                    'summary' => $c->summary,
+                    'startdate' => $c->startdate,
+                    'enddate' => $c->enddate,
+                    'imgurl' => $c->imgurl
+                );
+                $count++;
+            }
+            $content .= '<div style="width:100%;">';
+            $content .= '<div  class="row" style="padding-left: 1rem;">';
+            $content .= '<div class="col-xs-5">一共';
+            $content .= $count.'条<span style="color:#55b929">'.$searchcriteria['search'].'</span>搜索结果';
+            $content .= '</div>';
+            $content .= '</div>';
+            $content .= '</div>';
+
+            // $content .= '<div class="row"><div class="col-xs-5">一共'.$count.'条'.$searchcriteria['search'].'搜索结果</div></div>';
+            $content .= $this->course_category_print_box_self($child);
         } else {
             // just print search form
             $content .= $this->box_start('generalbox mdl-align');
