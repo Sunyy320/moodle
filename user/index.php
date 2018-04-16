@@ -437,6 +437,7 @@ $joins[] = $ccjoin;
 
 
 // Limit list to users with some role only.
+// 这里暂时没有执行
 if ($roleid) {
     // We want to query both the current context and parent contexts.
     list($relatedctxsql, $relatedctxparams) = $DB->get_in_or_equal($context->get_parent_context_ids(true), SQL_PARAMS_NAMED, 'relatedctx');
@@ -515,6 +516,7 @@ $matchcount = $DB->count_records_sql("SELECT COUNT(u.id) $from $where", $params)
 $table->initialbars(true);
 $table->pagesize($perpage, $matchcount);
 
+// 这里进行获取userlist
 // List of users at the current visible page - paging makes it relatively short.
 $userlist = $DB->get_recordset_sql("$select $from $where $sort", $params, $table->get_page_start(), $table->get_page_size());
 
@@ -720,10 +722,11 @@ if ($mode === MODE_USERDETAILS) {    // Print simple listing.
     }
 
 } else {
+    // 进入到这里进行展示
     $countrysort = (strpos($sort, 'country') !== false);
     $timeformat = get_string('strftimedate');
 
-
+    // 对用户列表进行展示
     if ($userlist) {
 
         $usersprinted = array();

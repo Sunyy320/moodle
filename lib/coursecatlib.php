@@ -1572,6 +1572,15 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         return $res;
     } 
 
+    // 获取一个课程报名的人数，可以传递role
+    public function get_course_join_count_self($courseid, $role=0){
+        global $DB;
+        $sql =  '
+        select * from {user} where id 
+        in (select userid from {role_assignments} where roleid='.$role.' and contextid in (select id from {context} where instanceid = '.$courseid.'))';
+        $res = $DB->get_records_sql($sql);
+        return $res;
+    }
 
 
 

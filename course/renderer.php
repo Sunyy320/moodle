@@ -1854,13 +1854,24 @@ class core_course_renderer extends plugin_renderer_base {
             // 从数据库中获取数据
             $courseRes = $coursecat->get_courses_self($coursecat->id,'startdate desc',20);
             foreach($courseRes as $c){
+                // 从数据库中查询参与的人数
+                $count = count($coursecat->get_course_join_count_self($c->id, 5));
+                // 查询老师信息
+                $teachers = $coursecat->get_course_join_count_self($c->id, 3);
+                $ts = '';
+                foreach($teachers as $t){
+                    $ts .= $t->lastname. $t->firstname. "  ";
+                }
+
                 $child[] = array(
                     'id' => $c->id,
                     'fullname' => $c->fullname,
                     'summary' => $c->summary,
                     'startdate' => $c->startdate,
                     'enddate' => $c->enddate,
-                    'imgurl' => $c->imgurl
+                    'imgurl' => $c->imgurl,
+                    'join' => $count,
+                    'teachers' => $ts
                 );
             }
             $content = $this->course_category_print_box_self($child);
@@ -1868,7 +1879,6 @@ class core_course_renderer extends plugin_renderer_base {
             // 当显示首页的列表，按照时间获取所有的课程
             $content = $this->frontpage_combo_list_self();
         }
-
         return $content;
     }
 
@@ -1903,20 +1913,29 @@ class core_course_renderer extends plugin_renderer_base {
             // 课程名称
             $content .= '<div class="row" style="font-size:1.4rem;">'.$item['fullname'].'</div>';
  
+            $content .= '<div class="row" style="font-size:0.8rem;margin-top:1rem;color:#999;">授课老师： '.$item['teachers'].'</div>';
             // 课程简介
             $content .= '<div class="row" style="font-size:0.8rem;margin-top:1rem;">'.$item['summary'].'</div>';
  
-            // 课程时间
+            
+            // 参加人数+课程时间
             $content .= '<div class="row" style="position: absolute;bottom:0rem;font-size:0.8rem;color: #999;">';
+            
+            // 参加人数
+            $content .= '<span style="margin-right:1rem;"><i class ="icon fa fa-user fa-fw" style="color:#999;"></i>'.$item['join'].'人参加';
+            $content .= '</span>';
+
+            // 课程时间
             if ((time() > $item['startdate']) && (time() < $item['enddate'])){
                 $dif = ceil((time() - $item['startdate']) / 3600 / 24 / 7);
                 $content .= '<span style="color:#55b929;"><i class ="icon fa fa-clock-o fa-fw" style="color:#55b929;"></i>进行到第'.$dif.'周</span>';
             } else if (time() > $item['enddate']) {
-                 $content .= '<i class ="icon fa fa-clock-o fa-fw"></i>已结束';
+                 $content .= '<i class ="icon fa fa-clock-o fa-fw" style="color:#999;"></i>已结束';
             } else {
                  $content .= '<span style="color:#ffac59;"><i class ="icon fa fa-clock-o fa-fw" style="color:#ffac59;"></i>';
                  $content .= date('Y-m-d H:i', $item['startdate']).'  开课</span>';
             }
+            
             $content .= '</div>';
            
             // 右边简介结束
