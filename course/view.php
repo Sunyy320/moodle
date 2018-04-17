@@ -277,6 +277,7 @@
     $displaysection = $section;
 
     // Include the actual course format.
+    // 中心区域的显示
     require($CFG->dirroot .'/course/format/'. $course->format .'/format.php');
     // Content wrapper end.
 

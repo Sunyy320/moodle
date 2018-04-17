@@ -1947,6 +1947,36 @@ class core_course_renderer extends plugin_renderer_base {
         return $content;
     }
 
+    // 单独取数据
+    public function course_fromdb_by_id_self($id){
+        global $CFG, $OUTPUT;
+        require_once($CFG->libdir. '/coursecatlib.php');
+        $coursecat = coursecat::get(0);
+        $res = $coursecat->get_course_by_id($id);
+        $teachers = $coursecat->get_course_join_count_self($id, 3); 
+        // $count = count($coursecat->get_course_join_count_self($id, 5));
+
+        $ts  = array();
+        foreach($teachers as $t){
+            $img = $OUTPUT->user_picture($t, array('size' => 35, $id));
+            $ts[]= array(
+                'id' => $t->id,
+                'name'=> $t->lastname. $t->firstname,
+                'imgurl' => $img
+            );
+        }
+
+        $arr = array(
+            'id' => $res->id,
+            'summary' => $res->summary,
+            'startdate' => date('Y-m-d H:i:s', $res->startdate),
+            'enddate' => date('Y-m-d H:i:s', $res->enddate),
+            // 'count' => $count,
+            'teachers' => $ts
+        );
+        return $arr;
+    }
+
     
 
     /**
