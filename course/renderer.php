@@ -2436,6 +2436,18 @@ class core_course_renderer extends plugin_renderer_base {
         $coursecat = coursecat::get(0);
         $fenlei= $coursecat->get_children();
         $res = array();
+        // 强烈推荐
+        $res[] = array(
+            'id' => 1,
+            'name' => '强烈推荐',
+            'description' => '',
+            'descriptionformat' => '',
+            'depth' => '',
+            'path' => '',
+            'child' => $this->get_hot_by_join_count_self($coursecat)
+        );
+
+        // 学院分类
         foreach($fenlei as $item){
             $courseRes = $coursecat->get_courses_self($item->id);
             $child = array();
@@ -2458,16 +2470,25 @@ class core_course_renderer extends plugin_renderer_base {
                 'child' => $child
             );
         }
+
+
         $content = '<div style="width:100%;float:left;">';
+
         // 开始构造样式
-        foreach($res as $r){
+        foreach($res as $k=>$r){
             $content .= '<div style="width:100%;">';
 
             // 包含小的标题div
-            $content .= '<div style="font-size:20px;font-weight:400;width:100%;float:left;margin-top:15px;">';
-            $url = new moodle_url('/course/index.php', array('categoryid' => $r["id"]));
-            $content .= '<a href="'.$url.'"><div style="float:left;">'.$r["name"].'</div><div style="float:right;font-size:10px;">'.更多.'</div></a>';
-            $content .= "</div>";
+            if ($k == 0){
+                $content .= '<div style="font-size:20px;font-weight:400;width:100%;float:left;margin-top:0px;">';
+                $content .= '<a href=""><div style="float:left;">'.$r["name"].'</div></a>';
+                $content .= "</div>";
+            } else{
+                $content .= '<div style="font-size:20px;font-weight:400;width:100%;float:left;margin-top:15px;">';
+                $url = new moodle_url('/course/index.php', array('categoryid' => $r["id"]));
+                $content .= '<a href="'.$url.'"><div style="float:left;">'.$r["name"].'</div><div style="float:right;font-size:10px;">'.更多.'</div></a>';
+                $content .= "</div>";
+            }
 
             // 内容div
             $content .= '<div style="width:100%;">';
@@ -2477,7 +2498,7 @@ class core_course_renderer extends plugin_renderer_base {
                 $content .= '<div style="margin-left: 10px;padding: 10px;float: left;width:24%;height:300px;border: 1px solid silver;">';
                 $content .= '<img width="100%" height="250" src="'.$item["imgurl"].'"></img>';
                 $content .= '<div style="margin-top:10px;font-size:10px;color: rgb(153, 153, 153);"><div style="float:left;">'.$item["fullname"].'</div>';
-                $content .= '<div style="float:right;">'.date('Y-m-d', $item['startdate']).'</div></div>';
+                $content .= '<div style="float:right;"><i class ="icon fa fa-clock-o fa-fw" style="color:#999;"></i>'.date('Y-m-d H:i',$item['startdate']).'</div></div>';
                 $content .= '</div>';
                 $content .= '</a>';
             }
@@ -2488,6 +2509,30 @@ class core_course_renderer extends plugin_renderer_base {
 
         $content .= "</div>";
         return $content;
+    }
+
+    // 得出推荐的内容
+    public function get_hot_by_join_count_self($coursecat){
+        $allCourses = $coursecat->get_all_courses_self(time());
+        $temp = array();
+        foreach($allCourses as $item){
+            $join = count($coursecat->get_course_join_count_self($item->id, 5));
+            $temp[]= array(
+                'id' => $item->id,
+                'fullname' => $item->fullname,
+                'summary' => $item->summary,
+                'startdate' => $item->startdate,
+                'imgurl' => $item->imgurl,
+                'join' => $join
+            );
+        }
+        // 在此二维数组排序
+        foreach ($temp as $key => $row) {
+            $join_count[$key] = $row['join'];
+        }
+        array_multisort($join_count, SORT_DESC, $temp);
+        
+        return array_slice($temp, 0, 4);
     }
 
     /**

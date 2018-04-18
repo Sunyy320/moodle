@@ -1573,7 +1573,7 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
     } 
 
     // 获取一个课程报名的人数，可以传递role
-    public function get_course_join_count_self($courseid, $role=0){
+    public function get_course_join_count_self($courseid, $role=5){
         global $DB;
         $sql =  '
         select * from {user} where id 
@@ -1582,9 +1582,21 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         return $res;
     }
 
+    // 得到一条课程信息
     public function get_course_by_id($id){
         global $DB;
         $res = $DB->get_record('course', array('id'=> $id));
+        return $res;
+    }
+
+    // 得到推荐的内容
+    public function get_all_courses_self($time = ''){
+        global $DB;
+        $sql = 'select * from mdl_course where category != 0';
+        if ($time != ''){
+            $sql .= ' and startdate <'. $time . ' and enddate > '. $time;
+        }
+        $res = $DB->get_records_sql($sql);
         return $res;
     }
 
