@@ -1566,9 +1566,19 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         return $courses;
     }
 
-    public function get_courses_self($id,$orderby = 'timecreated', $limit = 4){
+    // 这里需要添加多种现在条件，包括时间以及排序
+    public function get_courses_self($id,$time = 'all',$orderby = 'timecreated', $limit = 4){
         global $DB;
-        $res = $DB->get_records('course', array('category'=> $id), $orderby,'*', 0, $limit);
+        $sql  = 'select * from {course} where category = '.$id;
+        if ($time == 'now'){
+            $sql .= ' and startdate <'. time() . ' and enddate > '. time();
+        } else if ($time  == 'future') {
+            $sql .= ' and startdate >'. time();
+        } else if ($time  == 'end') {
+            $sql .= ' and enddate < '. time();
+        } 
+        $sql .= ' order by '.$orderby.' limit '. $limit;
+        $res = $DB->get_records_sql($sql);
         return $res;
     } 
 

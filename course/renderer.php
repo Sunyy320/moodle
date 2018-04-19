@@ -1857,7 +1857,7 @@ class core_course_renderer extends plugin_renderer_base {
         // 显示某个分类的图文列表
         if ($coursecat->id){
             // 从数据库中获取数据,这里需要添加多种限制条件
-            $courseRes = $coursecat->get_courses_self($coursecat->id,'startdate desc',20);
+            $courseRes = $coursecat->get_courses_self($coursecat->id,$time, 'startdate desc',50);
             foreach($courseRes as $c){
                 // 从数据库中查询参与的人数
                 $count = count($coursecat->get_course_join_count_self($c->id, 5));
@@ -1874,11 +1874,28 @@ class core_course_renderer extends plugin_renderer_base {
                     'summary' => $c->summary,
                     'startdate' => $c->startdate,
                     'enddate' => $c->enddate,
+                    'timecreated' => $c->timecreated,
                     'imgurl' => $c->imgurl,
                     'join' => $count,
                     'teachers' => $ts
                 );
             }
+            // 按照热门即参加人数排序
+            if ($orderby == 'hot'){
+                foreach ($child as $key => $row) {
+                    $join_count[$key] = $row['join'];
+                }
+                array_multisort($join_count, SORT_DESC, $child);
+            }
+            
+            // 按照最新排序，创建的时间
+            if ($orderby == 'newest'){
+                foreach ($child as $key => $row) {
+                    $join_count[$key] = $row['timecreated'];
+                }
+                array_multisort($join_count, SORT_DESC, $child);
+            }
+
             $content = $this->course_category_print_box_self($child, $baseurl, $time, $orderby);
         } else{
             // 当显示首页的列表，按照时间获取所有的课程
