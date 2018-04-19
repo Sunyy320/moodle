@@ -1785,6 +1785,10 @@ class core_course_renderer extends plugin_renderer_base {
         $browse = optional_param('browse', null, PARAM_ALPHA);
         $perpage = optional_param('perpage', $CFG->coursesperpage, PARAM_INT);
         $page = optional_param('page', 0, PARAM_INT);
+        // 获取页面传入的参数
+        $time = optional_param('time', 'all', PARAM_TEXT);
+        $orderby = optional_param('orderby', 'mul', PARAM_TEXT);
+
         $baseurl = new moodle_url('/course/index.php');
         if ($coursecat->id) {
             $baseurl->param('categoryid', $coursecat->id);
@@ -1792,6 +1796,7 @@ class core_course_renderer extends plugin_renderer_base {
         if ($perpage != $CFG->coursesperpage) {
             $baseurl->param('perpage', $perpage);
         }
+        
         $coursedisplayoptions['limit'] = $perpage;
         $catdisplayoptions['limit'] = $perpage;
         if ($browse === 'courses' || !$coursecat->has_children()) {
@@ -1818,7 +1823,7 @@ class core_course_renderer extends plugin_renderer_base {
         // Display course category tree.
         // $output .= $this->coursecat_tree($chelper, $coursecat);
         // 修改构造的方式
-        $output .= $this->course_category_fromdb_self($chelper, $coursecat);
+        $output .= $this->course_category_fromdb_self($chelper, $coursecat, $baseurl, $time, $orderby);
 
         // Add action buttons
         $output .= $this->container_start('buttons');
@@ -1846,12 +1851,12 @@ class core_course_renderer extends plugin_renderer_base {
     }
 
     // 从数据库中取相关数据
-    public function course_category_fromdb_self(coursecat_helper $chelper, $coursecat){
+    public function course_category_fromdb_self(coursecat_helper $chelper, $coursecat, $baseurl, $time = 'all', $orderby = 'mul'){
         $child = array();
 
         // 显示某个分类的图文列表
         if ($coursecat->id){
-            // 从数据库中获取数据
+            // 从数据库中获取数据,这里需要添加多种限制条件
             $courseRes = $coursecat->get_courses_self($coursecat->id,'startdate desc',20);
             foreach($courseRes as $c){
                 // 从数据库中查询参与的人数
@@ -1874,7 +1879,7 @@ class core_course_renderer extends plugin_renderer_base {
                     'teachers' => $ts
                 );
             }
-            $content = $this->course_category_print_box_self($child);
+            $content = $this->course_category_print_box_self($child, $baseurl, $time, $orderby);
         } else{
             // 当显示首页的列表，按照时间获取所有的课程
             $content = $this->frontpage_combo_list_self();
@@ -1882,18 +1887,112 @@ class core_course_renderer extends plugin_renderer_base {
         return $content;
     }
 
-    public function course_category_print_box_self($child){
+    public function course_category_print_box_self($child, $baseurl, $time, $orderby){
         $content = '';
 
         // 时间的选择器
-        // $content .= '<div style="margin:1rem 3rem 0rem 3rem;">';
-        // $content .= '<div class="row" style="border:1px solid silver;">';
-        // $content .= '<div><ul style="float:left;margin-bottom:0rem;line-height:0.8rem;">';
-        // $content .= '<li style="color:#55b929;border-right: 1px solid #e6e6e6;padding:0.8rem;float:left;list-style:none;cursor:pointer;">全部</li>';
-        // $content .= '<li style="border-right: 1px solid #e6e6e6;padding:0.8rem;float:left;list-style:none;cursor:pointer;">正在进行</li>';
-        // $content .= '</ul></div>';
-        // $content .= '</div>';
-        // $content .= '</div>';
+        $content .= '<div style="margin:1rem 3rem 0rem 3rem;">';
+        $content .= '<div class="row" style="border:1px solid silver;">';
+        $content .= '<div><ul style="float:left;margin-bottom:0rem;line-height:0.8rem;width:100%;">';
+
+        $black = 'color:#333;border-right: 1px solid #e6e6e6;padding:0.8rem;float:left;list-style:none;cursor:pointer;';
+        $green = 'color:#55b929;border-right: 1px solid #e6e6e6;padding:0.8rem;float:left;list-style:none;cursor:pointer;';
+        $black_right = 'color:#333;border-left: 1px solid #e6e6e6;padding:0.8rem;float:right;list-style:none;cursor:pointer';
+        $green_right = 'color:#55b929;border-left: 1px solid #e6e6e6;padding:0.8rem;float:right;list-style:none;cursor:pointer';
+       
+        // 全部
+        $url = new moodle_url($baseurl, array('time' => 'all', 'orderby' => $orderby));        
+        if ($time == 'all'){
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$green.'">全部</li>';
+            $content .= '</a>';
+        } else {
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$black.'">全部</li>';
+            $content .= '</a>';
+        }
+        
+        // 正在进行        
+        if ($time == 'now'){
+            $url = new moodle_url($baseurl, array('time' => 'now', 'orderby' => $orderby)); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$green.'">正在进行</li>';
+            $content .= '</a>';
+        } else {
+            $url = new moodle_url($baseurl, array('time' => 'now', 'orderby' => $orderby)); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$black.'">正在进行</li>';
+            $content .= '</a>';
+        }
+        
+        // 即将开始
+        if ($time == 'future'){
+            $url = new moodle_url($baseurl, array('time' => 'future', 'orderby' => $orderby)); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$green.'">即将开始</li>';
+            $content .= '</a>';
+        } else {
+            $url = new moodle_url($baseurl, array('time' => 'future', 'orderby' => $orderby)); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$black.'">即将开始</li>';
+            $content .= '</a>';
+        }
+       
+        // 已经结束
+        if ($time == 'end'){
+            $url = new moodle_url($baseurl, array('time' => 'end', 'orderby' => $orderby)); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$green.'">已结束</li>';
+            $content .= '</a>';
+        } else {
+            $url = new moodle_url($baseurl, array('time' => 'end', 'orderby' => $orderby)); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$black.'">已结束</li>';
+            $content .= '</a>';
+        }
+       
+        // 热门
+        if ($orderby == 'hot') {
+            $url = new moodle_url($baseurl, array('time' => $time, 'orderby' =>'hot')); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$green_right.'">热门</li>';
+            $content .= '</a>';
+        } else {
+            $url = new moodle_url($baseurl, array('time' => $time, 'orderby' =>'hot')); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$black_right.'">热门</li>';
+            $content .= '</a>';
+        }
+
+        // 最新
+        if ($orderby == 'newest') {
+            $url = new moodle_url($baseurl, array('time' => $time, 'orderby' => 'newest')); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$green_right.'">最新</li>';
+            $content .= '</a>';
+        } else {
+            $url = new moodle_url($baseurl, array('time' => $time, 'orderby' => 'newest')); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$black_right.'">最新</li>';
+            $content .= '</a>';
+        }
+
+        // 综合排序
+        if ($orderby == 'mul') {
+            $url = new moodle_url($baseurl, array('time' => $time, 'orderby' => 'mul')); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$green_right.'">综合排序</li>';
+            $content .= '</a>';
+        } else {
+            $url = new moodle_url($baseurl, array('time' => $time, 'orderby' => 'mul')); 
+            $content .= '<a href="'.$url.'">';
+            $content .= '<li style="'.$black_right.'">综合排序</li>';
+            $content .= '</a>';
+        }
+
+        $content .= '</ul></div>';
+        $content .= '</div>';
+        $content .= '</div>';
 
         $content .= '<div style="width:100%;">';
         foreach($child as $item){
@@ -2164,7 +2263,7 @@ class core_course_renderer extends plugin_renderer_base {
             $content .= '</div>';
 
             // $content .= '<div class="row"><div class="col-xs-5">一共'.$count.'条'.$searchcriteria['search'].'搜索结果</div></div>';
-            $content .= $this->course_category_print_box_self($child);
+            $content .= $this->course_category_print_box_self($child, new moodle_url('/course/index.php'),'all', 'mul');
         } else {
             // just print search form
             $content .= $this->box_start('generalbox mdl-align');
@@ -2439,7 +2538,7 @@ class core_course_renderer extends plugin_renderer_base {
         // 强烈推荐
         $res[] = array(
             'id' => 1,
-            'name' => '强烈推荐',
+            'name' => '课程推荐',
             'description' => '',
             'descriptionformat' => '',
             'depth' => '',
