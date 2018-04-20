@@ -1610,6 +1610,14 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         return $res;
     }
 
+    // 得到一个人参与的所有课程信息
+    public function  get_all_courses_by_userid_self($userid){
+        global $DB;
+        $sql = 'select instanceid from {context} where id in (select contextid from {role_assignments} where roleid=5 and userid = '.$userid.')';
+        $res = $DB->get_records_sql($sql);
+        return $res;
+    }
+
 
 
     /**

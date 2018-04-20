@@ -2629,8 +2629,86 @@ class core_course_renderer extends plugin_renderer_base {
 
     // 得出推荐的内容
     public function get_hot_by_join_count_self($coursecat){
-        $allCourses = $coursecat->get_all_courses_self(time());
+        global $CFG, $USER;
+        require_once($CFG->libdir. '/similary.class.php');
+        
+        // 判断当前用户是否登陆
+        $uid = $USER->id;
+        // 未登陆
+        if ($uid == 0){
+            $res = $this->get_hot_courses_without_join($coursecat);
+        } else {
+            // 获取一个人报名参加的所有课程的名称和id
+            $joinCourses = $coursecat->get_all_courses_by_userid_self($uid);    
+
+            // 未参与任何课程，正常推荐，没有个性化        
+            if (count($joinCourses)==0) {
+                $res = $this->get_hot_courses_without_join($coursecat);
+            } else {
+                 // 获取所有的课程名称以及其id
+                $allCourses = $coursecat->get_all_courses_self();
+                $courseArray = array();
+                foreach($allCourses as $item){
+                    $courseArray[$item->id] = $item->fullname;
+                }
+                $similary = array();
+                foreach($joinCourses as $j){
+                    // 去除相同的course id 
+                    $joinName = $courseArray[$j->instanceid];
+                    foreach($allCourses as $item){
+                        if ($item->id != $j->instanceid){
+                            // 计算相似度
+                            $obj = new TextSimilarity ($item->fullname, $joinName);
+                            $percentage = $obj->run();
+                            if ($percentage != 'errors') {
+                                if (isset($similary[$item->id]['percentage']) ) {                            
+                                    if ($percentage > $similary[$item->id]['percentage']) {
+                                        $similary[$item->id] = array(
+                                            'id' => $item->id,
+                                            'fullname' => $item->fullname,
+                                            'summary' => $item->summary,
+                                            'startdate' => $item->startdate,
+                                            'imgurl' => $item->imgurl,
+                                            'percentage' => $percentage
+                                        );
+                                    }
+                                } else {
+                                    $similary[$item->id] = array(
+                                        'id' => $item->id,
+                                        'fullname' => $item->fullname,
+                                        'summary' => $item->summary,
+                                        'startdate' => $item->startdate,
+                                        'imgurl' => $item->imgurl,
+                                        'percentage' => $percentage
+                                    );
+                                }
+                            }
+                        }
+                    }
+                }
+                // 这里计算推算出来的个数
+                $res = $similary;
+                $count = count($similary);
+                if ($count < 4) {
+                    $joinHot = $this->get_hot_courses_without_join($coursecat);
+                    foreach($joinHot as $j){
+                        if (!isset($similary[$j['id']])){
+                            $res[$j['id']] = $j;
+                            $count++;
+                        }
+                        if ($count >= 4){
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        return $res;
+    }
+
+    public function get_hot_courses_without_join($coursecat){
         $temp = array();
+        $allCourses = $coursecat->get_all_courses_self(time());
         foreach($allCourses as $item){
             $join = count($coursecat->get_course_join_count_self($item->id, 5));
             $temp[]= array(
@@ -2647,10 +2725,8 @@ class core_course_renderer extends plugin_renderer_base {
             $join_count[$key] = $row['join'];
         }
         array_multisort($join_count, SORT_DESC, $temp);
-        
         return array_slice($temp, 0, 4);
     }
-
     /**
      * Returns HTML to print tree of course categories (with number of courses) for the frontpage
      *
