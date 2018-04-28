@@ -1618,6 +1618,13 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         return $res;
     }
 
+    // 得到一个人授课的课程信息
+    public function get_all_courses_as_teacher ($userid){
+        global  $DB;
+        $sql = 'select * from {course} where id in(select instanceid from {context} where id in (select contextid from {role_assignments} where roleid = 3 and userid = '.$userid.'))';
+        $res = $DB->get_records_sql($sql);
+        return $res;
+    }
 
 
     /**

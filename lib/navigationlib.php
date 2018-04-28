@@ -3871,8 +3871,36 @@ class flat_navigation extends navigation_node_collection {
 
             $this->page->navigation->build_flat_navigation_list($this, true);
         } else {
+            // 首页这里执行
             $this->page->navigation->build_flat_navigation_list($this, false);
         }
+
+        // 这里需要判断是否登陆，如果没有登陆，应该隐藏改页面
+        if (isloggedin()){
+            // 从数据库中读取当前用户管理的课程
+            global $CFG, $USER;
+            require_once($CFG->libdir. '/coursecatlib.php');
+            $coursecat = coursecat::get(0);
+            $teachCourses = $coursecat->get_all_courses_as_teacher($USER->id);
+            if (count($teachCourses) >0){
+                // 可以添加导航
+                $flat = new flat_navigation_node(navigation_node::create("授课课程"),0);
+                $flat->set_showdivider(false);
+                $flat->key = 'sitesettings';
+                $this->add($flat);
+            }
+
+            // 这里是子节点
+            foreach ($teachCourses as $item){
+                $name = $item->fullname;
+                $url = new moodle_url('/course/view.php', array('id' => $item->id));
+                $flat = new flat_navigation_node(navigation_node::create($name, $url),1);
+                $flat->set_showdivider(false);
+                $flat->key = 'sitesettings';
+                $this->add($flat);
+            }
+        }
+
 
         $admin = $PAGE->settingsnav->find('siteadministration', navigation_node::TYPE_SITE_ADMIN);
         if (!$admin) {

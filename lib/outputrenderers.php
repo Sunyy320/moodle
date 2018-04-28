@@ -1652,7 +1652,7 @@ class core_renderer extends renderer_base {
             $zones[] = $block->title;
         }
         $output = '';
-
+        // zones:1 课程简介 2. 导航
         foreach ($blockcontents as $bc) {
             if ($bc instanceof block_contents) {
                 $output .= $this->block($bc, $region);
