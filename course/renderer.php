@@ -2700,6 +2700,13 @@ class core_course_renderer extends plugin_renderer_base {
                             break;
                         }
                     }
+                } else {
+                    // 根据相似度进行数组切分
+                    foreach ($res as $key => $row) {
+                        $join_count[$key] = $row['percentage'];
+                    }
+                    array_multisort($join_count, SORT_DESC, $res);
+                    $res = array_slice($res, 0, 4);
                 }
             }
         }
