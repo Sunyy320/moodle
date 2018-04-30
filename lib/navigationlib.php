@@ -3831,6 +3831,10 @@ class flat_navigation extends navigation_node_collection {
 
         $this->page->navigation->initialise();
 
+        global $CFG, $USER;
+        require_once($CFG->libdir. '/coursecatlib.php');
+        $coursecat = coursecat::get(0);
+
         // First walk the nav tree looking for "flat_navigation" nodes.
         if ($course->id > 1) {
             // It's a real course.
@@ -3860,11 +3864,42 @@ class flat_navigation extends navigation_node_collection {
             // There is one very strange page in mod/feedback/view.php which thinks it is both site and course
             // context at the same time. That page is broken but we need to handle it (hence the SITEID).
             if ($coursenode && $coursenode->key != SITEID) {
+                // 这里显示课程名称
                 $this->add($flat);
+                $countRes = 0;
                 foreach ($coursenode->children as $child) {
+                    // 删除勋章模块
+                    if ($countRes == 1){
+                        $countRes++;
+                        continue;
+                    }
                     if ($child->action) {
+                        $countRes++;
                         $flat = new flat_navigation_node($child, 0);
                         $this->add($flat);
+                    }
+                    // 增加作业模块
+                    if ($countRes == 3){
+                        $flat = new flat_navigation_node(navigation_node::create("作业&测评"),0);
+                        $flat->set_showdivider(false);
+                        $this->add($flat);
+
+                        // 直接显示作业列表
+                        $res= $coursecat->get_courses_works($course->id);
+                        foreach ($res as $item) {
+                            $name = $item->name;
+                            $url = new moodle_url('/mod/assign/view.php', array('id' => $item->urlid));
+                            $flat = new flat_navigation_node(navigation_node::create($name, $url),1);
+                            $flat->set_showdivider(false);
+                            $this->add($flat);
+                        }
+
+                        // 添加学习追踪模块
+                        $url = new moodle_url('/grade/report/user/trace.php', array('id' => $course->id));
+                        $flat = new flat_navigation_node(navigation_node::create("学习追踪", $url),0);
+                        $flat->set_showdivider(false);
+                        $this->add($flat);
+
                     }
                 }
             }
@@ -3878,9 +3913,9 @@ class flat_navigation extends navigation_node_collection {
         // 这里需要判断是否登陆，如果没有登陆，应该隐藏改页面
         if (isloggedin()){
             // 从数据库中读取当前用户管理的课程
-            global $CFG, $USER;
-            require_once($CFG->libdir. '/coursecatlib.php');
-            $coursecat = coursecat::get(0);
+//            global $CFG, $USER;
+//            require_once($CFG->libdir. '/coursecatlib.php');
+//            $coursecat = coursecat::get(0);
             $teachCourses = $coursecat->get_all_courses_as_teacher($USER->id);
             if (count($teachCourses) >0){
                 // 可以添加导航

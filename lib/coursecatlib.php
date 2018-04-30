@@ -1626,6 +1626,35 @@ class coursecat implements renderable, cacheable_object, IteratorAggregate {
         return $res;
     }
 
+    // 得到课程内的作业名称以及其链接
+    public function get_courses_works($courseid){
+        global $DB;
+        $sql = 'select a.id,a.course,a.name, a.intro, m.id as urlid, m.instance from {assign} as a  left join {course_modules} as m on a.id = m.instance where a.course = '.$courseid.' and m.course = '.$courseid.' and m.module =1';
+        $res = $DB->get_records_sql($sql);
+        return $res;
+    }
+
+    // 得到一个课程下所有学生的作业完成状态
+    public function get_courses_works_complete_status($courseid) {
+        global $DB;
+        $sql = 'select * from {course_completions} where course = '.$courseid;
+        $students = $DB->get_records_sql($sql);
+        $res = array();
+        foreach ($students as $item){
+            $sql = 'select it.id, it.itemname, g.finalgrade,g.userid from mdl_grade_items it 
+left join mdl_grade_grades g on g. itemid = it.id
+where it.courseid = '.$courseid.' and it.itemtype = \'mod\' and g.finalgrade != \'\' and g.userid = '.$item->userid;
+            $per = $DB->get_records_sql($sql);
+
+            // 查询姓名
+            $sql = 'select firstname,lastname from {user} where id = '. $item->userid;
+            $name = $DB->get_record_sql($sql);
+            $fullname= $name->lastname.$name->firstname;
+            $res[$fullname]= $per;
+        }
+        return $res;
+    }
+
 
     /**
      * Returns number of courses visible to the user
