@@ -2231,6 +2231,8 @@ class core_course_renderer extends plugin_renderer_base {
 
             // print search results
             require_once($CFG->libdir. '/coursecatlib.php');
+            $chelper = new coursecat_helper();
+            $coursecat = coursecat::get(0);
 
             $displayoptions = array('sort' => array('displayname' => 1));
             // take the current page and number of results per page from query
@@ -2250,7 +2252,7 @@ class core_course_renderer extends plugin_renderer_base {
                     $class .= ' course-search-result-'. $key;
                 }
             }
-            $chelper = new coursecat_helper();
+
             $chelper->set_show_courses(self::COURSECAT_SHOW_COURSES_EXPANDED_WITH_CAT)->
                     set_courses_display_options($displayoptions)->
                     set_search_criteria($searchcriteria)->
@@ -2261,13 +2263,24 @@ class core_course_renderer extends plugin_renderer_base {
             $child = array();
             $count = 0;
             foreach($courses as $c){
+                // 从数据库中查询参与的人数
+
+                $join = count($coursecat->get_course_join_count_self($c->id, 5));
+                // 查询老师信息
+                $teachers = $coursecat->get_course_join_count_self($c->id, 3);
+                $ts = '';
+                foreach($teachers as $t){
+                    $ts .= $t->lastname. $t->firstname. "  ";
+                }
                 $child[] = array(
                     'id' => $c->id,
                     'fullname' => $c->fullname,
                     'summary' => $c->summary,
                     'startdate' => $c->startdate,
                     'enddate' => $c->enddate,
-                    'imgurl' => $c->imgurl
+                    'imgurl' => $c->imgurl,
+                    'join' => $join,
+                    'teachers' => $ts
                 );
                 $count++;
             }
