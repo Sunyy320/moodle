@@ -2063,6 +2063,61 @@ class core_course_renderer extends plugin_renderer_base {
         return $content;
     }
 
+
+    public function course_category_print_box_search_self($child, $baseurl, $time, $orderby){
+        $content = '';
+
+        $content .= '<div style="width:100%;">';
+        foreach($child as $item){
+            $url = new moodle_url('/course/view.php', array('id' => $item['id']));
+            $content .= '<a href="'.$url.'">';
+            $content .= '<div class="row" style="margin-top:1rem;padding:1rem;border-bottom: 1px solid silver;color:#333;">';
+
+            // 图片开始
+            $content .= '<div class="col-xs-3">';
+            $content .= '<img width="100%" src="'.$item['imgurl'].'">';
+            $content .= "</div>";
+            // 图片结束
+
+            // 右边简介开始
+            $content .= '<div class="col-xs-9" style="min-height: 12rem;">';
+
+            // 课程名称
+            $content .= '<div class="row" style="font-size:1.4rem;">'.$item['fullname'].'</div>';
+
+            $content .= '<div class="row" style="font-size:0.8rem;margin-top:1rem;color:#999;">授课老师： '.$item['teachers'].'</div>';
+            // 课程简介
+            $content .= '<div class="row" style="font-size:0.8rem;margin-top:1rem;">'.$item['summary'].'</div>';
+
+
+            // 参加人数+课程时间
+            $content .= '<div class="row" style="position: absolute;bottom:0rem;font-size:0.8rem;color: #999;">';
+
+            // 参加人数
+            $content .= '<span style="margin-right:1rem;"><i class ="icon fa fa-user fa-fw" style="color:#999;"></i>'.$item['join'].'人参加';
+            $content .= '</span>';
+
+            // 课程时间
+            if ((time() > $item['startdate']) && (time() < $item['enddate'])){
+                $dif = ceil((time() - $item['startdate']) / 3600 / 24 / 7);
+                $content .= '<span style="color:#55b929;"><i class ="icon fa fa-clock-o fa-fw" style="color:#55b929;"></i>进行到第'.$dif.'周</span>';
+            } else if (time() > $item['enddate']) {
+                $content .= '<i class ="icon fa fa-clock-o fa-fw" style="color:#999;"></i>已结束';
+            } else {
+                $content .= '<span style="color:#ffac59;"><i class ="icon fa fa-clock-o fa-fw" style="color:#ffac59;"></i>';
+                $content .= date('Y-m-d H:i', $item['startdate']).'  开课</span>';
+            }
+
+            $content .= '</div>';
+
+            // 右边简介结束
+            $content .= "</div>";
+            $content .= "</div>";
+            $content .= "</a>";
+        }
+        $content .= "</div>";
+        return $content;
+    }
     // 单独取数据
     public function course_fromdb_by_id_self($id){
         global $CFG, $OUTPUT;
@@ -2258,6 +2313,7 @@ class core_course_renderer extends plugin_renderer_base {
                     set_search_criteria($searchcriteria)->
                     set_attributes(array('class' => $class));
 
+            // 加入参数
             $courses = coursecat::search_courses_self($searchcriteria, $chelper->get_courses_display_options());
             // 搜索结果进行拼接
             $child = array();
@@ -2293,7 +2349,7 @@ class core_course_renderer extends plugin_renderer_base {
             $content .= '</div>';
 
             // $content .= '<div class="row"><div class="col-xs-5">一共'.$count.'条'.$searchcriteria['search'].'搜索结果</div></div>';
-            $content .= $this->course_category_print_box_self($child, new moodle_url('/course/index.php'),'all', 'mul');
+            $content .= $this->course_category_print_box_search_self($child, new moodle_url('/course/index.php'),'all', 'mul');
         } else {
             // just print search form
             $content .= $this->box_start('generalbox mdl-align');
