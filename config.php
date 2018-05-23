@@ -6,10 +6,10 @@ $CFG = new stdClass();
 
 $CFG->dbtype    = 'mysqli';
 $CFG->dblibrary = 'native';
-$CFG->dbhost    = '47.98.109.213';
-$CFG->dbname    = 'moodle';
-$CFG->dbuser    = 'root';
-$CFG->dbpass    = 'Sunyy320';
+$CFG->dbhost    = '';
+$CFG->dbname    = '';
+$CFG->dbuser    = '';
+$CFG->dbpass    = '';
 $CFG->prefix    = 'mdl_';
 $CFG->dboptions = array (
   'dbpersist' => 0,
@@ -18,8 +18,8 @@ $CFG->dboptions = array (
   'dbcollation' => 'utf8mb4_unicode_ci',
 );
 
-$CFG->wwwroot   = 'http://hnust.moodle.com';
-$CFG->dataroot  = '/Users/yuanyuansun/var/moodledata';
+$CFG->wwwroot   = '';
+$CFG->dataroot  = '';
 $CFG->admin     = 'admin';
 
 $CFG->directorypermissions = 0777;
